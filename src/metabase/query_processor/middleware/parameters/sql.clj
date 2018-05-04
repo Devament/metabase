@@ -23,6 +23,7 @@
            honeysql.types.SqlCall
            java.text.NumberFormat
            java.util.regex.Pattern
+           java.util.TimeZone
            metabase.models.field.FieldInstance))
 
 ;; The Basics:
@@ -532,7 +533,7 @@
   "Expand parameters inside a *SQL* QUERY."
   [query]
   (binding [*driver*   (ensure-driver query)
-            *timezone* (get-in query [:settings :report-timezone])]
+            *timezone* (get-in query [:settings :report-timezone] (.getID (TimeZone/getDefault)))]
     (if (driver/driver-supports? *driver* :native-query-params)
       (update query :native expand-query-params (query->params-map query))
       query)))
