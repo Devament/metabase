@@ -106,7 +106,7 @@
 
 (declare str->date-time)
 
-(defn ->Timestamp
+(defn ^Timestamp ->Timestamp
   "Converts `coercible-to-ts` to a `java.util.Timestamp`. Requires a `coercible-to-tz` if converting a string. Leans
   on clj-time to ensure correct conversions between the various types"
   ([coercible-to-ts]
