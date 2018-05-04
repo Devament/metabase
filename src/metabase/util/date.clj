@@ -13,10 +13,10 @@
            [org.joda.time DateTime DateTimeZone]
            [org.joda.time.format DateTimeFormatter]))
 
-(def ^:dynamic *report-timezone*
-  "Timezone to be used when formatting timestamps for display or for the data (pre aggregation")
+(def ^:dynamic ^:private *report-timezone*
+  "Timezone to be used when formatting timestamps for display or for the data (pre aggregation)")
 
-(def ^:dynamic *data-timezone*
+(def ^:dynamic ^:private *data-timezone*
   "The timezone of the data being queried. Today this is the same as the database timezone.")
 
 (defprotocol ITimeZoneCoercible
@@ -65,7 +65,9 @@
                          (trs "JVM timezone is {0} and detected database timezone is {1}."
                               (.getID jvm-timezone) (.getID data-timezone)))))))))
 
-(defn call-with-effective-timezone [db f]
+(defn call-with-effective-timezone
+  "Invokes `f` with `*report-timezone*` and `*data-timezone*` bound for the given `db`"
+  [db f]
   (let [driver    ((resolve 'metabase.driver/->driver) db)
         report-tz (when-let [report-tz-id (and driver ((resolve 'metabase.driver/report-timezone-if-supported) driver))]
                     (coerce-to-timezone report-tz-id))
@@ -76,7 +78,9 @@
               *data-timezone*   data-tz]
       (f))))
 
-(defmacro with-effective-timezone [db & body]
+(defmacro with-effective-timezone
+  "Runs `body` with `*report-timezone*` and `*data-timezone*` configured using the given `db`"
+  [db & body]
   `(call-with-effective-timezone ~db (fn [] ~@body)))
 
 (defprotocol ITimestampCoercible
